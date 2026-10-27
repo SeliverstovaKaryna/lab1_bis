@@ -7,6 +7,12 @@ def is_prime(n):
             return False
     return True
 
+def is_prime_ferma(p, rounds = 40):
+    for _ in range(rounds):
+        a = random.randint(2, p-1)
+        if pow(a, p-1, p) != 1:
+            return False
+        return True
 
 def euler_func(p, q):
     bigInt = BigInt()
@@ -49,6 +55,28 @@ def generate_keys(bit_length):
     priv_key = (d, n)
     return pub_key, priv_key
 
+def generate_keys_ferma(bit_length):
+    bigInt = BigInt()
+    half_bit_length = bit_length // 2
+    while True:
+        p = random.randint(2 ** (half_bit_length - 1), 2 ** half_bit_length - 1)
+        if is_prime_ferma(p):
+            break
+    while True:
+        q = random.randint(2 ** (half_bit_length - 1), 2 ** half_bit_length - 1)
+        if is_prime_ferma(q) and p != q:
+            break
+
+    n = int(bigInt.calculate(f"mul {str(p)} {str(q)}"))
+    phi = int(euler_func(p, q))
+    while True:
+        e = random.randint(3, phi - 1)
+        if extended_euclidean_algorithm(e, phi)[0] == 1:
+            break
+    pub_key = (e, n)
+    d = modular_inverse(e, phi)
+    priv_key = (d, n)
+    return pub_key, priv_key
 
 def rsa_encrypt(public_key, plain_text):
     e, n = public_key#ord is unicode code point
